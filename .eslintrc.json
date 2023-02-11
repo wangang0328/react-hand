@@ -21,7 +21,7 @@
         "prettier"
     ],
     "rules": {
-        "prettier/prettier": "error",
+        "prettier/prettier": "off",
         "no-case-declarations": "off",
         "no-constant-condition": "off",
         "@typescript-eslint/ban-ts-command": "off"
