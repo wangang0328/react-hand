@@ -18,6 +18,11 @@
     "noEmit": true,
     "noUnusedLocals": true,
     "noImplicitReturns": false,
-    "baseUrl": "./packages"
-  }
+    "baseUrl": "./packages",
+    "paths": {
+      "hostConfig": [
+        "./react-dom/src/hostConfig.ts"
+      ]
+    }
+  },
 }

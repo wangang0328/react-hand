@@ -55,4 +55,34 @@ export const jsx = (type: ElementType, config: any, maybeKey: any, ...rest: any[
   return ReactElement(type, key, ref, props)
 }
 
-export const jsxDEV = jsx
+export const jsxDEV = (type: ElementType, config: any, maybeKey: any) => {
+  let key: Key | null = null
+  let ref: Ref | null = null
+  const props: Props = {}
+  if (maybeKey !== undefined) {
+    key = maybeKey + ''
+  }
+  for (const prop in config) {
+    const val = config[prop]
+
+    if (prop === 'ref') {
+      if (val !== undefined) {
+        key = val + ''
+      }
+      continue
+    }
+
+    if (prop === 'ref') {
+      if (val !== undefined) {
+        ref = val
+      }
+      continue
+    }
+
+    if (hasOwnProperty.call(config, prop)) {
+      props[prop] = val
+    }
+  }
+
+  return ReactElement(type, key, ref, props)
+}

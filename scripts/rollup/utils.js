@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import tsPlugin from 'rollup-plugin-typescript2'
+import replace from '@rollup/plugin-replace'
 import commonjsPlugin from '@rollup/plugin-commonjs'
 
 export const resolveSourcePkgPath = function (name) {
@@ -17,6 +18,12 @@ export const getPackageJSON = function (name) {
 	return JSON.parse(jsonStr)
 }
 
-export function getBaseConfig({ typescript = {} } = {}) {
-	return [commonjsPlugin(), tsPlugin(typescript)]
+export function getBaseConfig({
+	alias = {
+		__DEV__: true,
+		preventAssignment: true,
+	},
+	typescript = {},
+} = {}) {
+	return [replace(alias), commonjsPlugin(), tsPlugin(typescript)]
 }

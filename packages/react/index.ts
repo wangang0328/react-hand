@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { jsx } from './src/jsx'
+import { jsxDEV } from './src/jsx'
 export default {
-  createElement: jsx,
+  createElement: jsxDEV,
   version: '1.0.0'
 }

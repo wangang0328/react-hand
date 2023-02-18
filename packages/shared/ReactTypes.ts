@@ -12,3 +12,5 @@ export interface IReactElement {
   props: Props
   __auth_owner: string
 }
+
+export type Action<State> = State | ((prevState: State) => State)
