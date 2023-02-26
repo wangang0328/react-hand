@@ -125,3 +125,5 @@ commit 阶段分为 3 个子阶段
 beforMutation 阶段 - commitBeforeMutationEffects
 mutation 阶段 - commitMutationEffects
 layout 阶段 - commitLayoutEffects
+
+### 带 old ts 的都为复习

@@ -1,6 +1,6 @@
 import { NoFlags } from './ReactFiberFlags';
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { HostComponent, HostText, HostRoot } from './ReactWorkTags'
+import { HostComponent, HostText, HostRoot, FunctionComponent } from './ReactWorkTags'
 import { FiberNode } from './ReactFiber'
 import { createInstance, appendInitialChild, Container, createTextInstance } from 'hostConfig'
 
@@ -35,6 +35,9 @@ export const completeWork = (wip: FiberNode) => {
       bubbleProperties(wip)
       return null
     case HostRoot:
+      bubbleProperties(wip)
+      return null
+    case FunctionComponent:
       bubbleProperties(wip)
       return null
     default:

@@ -7,7 +7,7 @@ import {
 	getBaseConfig,
 } from './utils'
 
-const { module, name } = getPackageJSON('react-dom')
+const { module, name, peerDependencies } = getPackageJSON('react-dom')
 const sourcePkgPath = resolveSourcePkgPath(name)
 const distPkgPath = resolveDistPkgPath(name)
 
@@ -26,6 +26,7 @@ export default [
 				format: 'umd',
 			},
 		],
+		external: [...Object.keys(peerDependencies)],
 		plugins: [
 			...getBaseConfig(),
 			alias({

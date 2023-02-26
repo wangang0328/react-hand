@@ -1,8 +1,9 @@
 import { IReactElement } from 'shared/ReactTypes';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { HostRoot, HostComponent, HostText } from './ReactWorkTags';
+import { HostRoot, HostComponent, HostText, FunctionComponent } from './ReactWorkTags';
 import { FiberNode } from './ReactFiber'
 import { mountChildFibers, reconcileChildFibers } from './childFibers';
+import { renderWithHooks } from './fiberHooks';
 
 /**
  * 标记2类 与结构变化相关的flags
@@ -17,6 +18,8 @@ export function beginWork(wip: FiberNode) {
   switch (wip.tag) {
     case HostRoot:
       return updateHostRoot(wip)
+    case FunctionComponent:
+      return updateFunctionComponent(wip)
     case HostComponent:
       return updateHostComponent(wip)
     case HostText:
@@ -28,6 +31,12 @@ export function beginWork(wip: FiberNode) {
       break;
   }
   return null
+}
+
+function updateFunctionComponent(wip: FiberNode) {
+  const nextChildren = renderWithHooks(wip)
+  reconcilerChildren(wip, nextChildren)
+  return wip.child
 }
 
 function updateHostRoot(wip: FiberNode) {
