@@ -1,11 +1,12 @@
 // @ts-nocheck
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 
 const App = () => {
+	const [num, setNum] = useState(3)
 	return (
 		<div>
-			<span>hello word</span>
+			<span>{num}</span>
 		</div>
 	)
 }

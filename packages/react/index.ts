@@ -15,8 +15,6 @@ export const __SECRET_INTERANLS_DO_NOT_USE_OR_YOU_WILL_FIRED = {
 }
 
 
-
-
 export default {
   createElement: jsxDEV,
   version: '1.0.0'

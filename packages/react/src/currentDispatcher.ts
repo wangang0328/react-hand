@@ -6,7 +6,9 @@ export interface Dispatcher {
   useState: <T>(v: T | (() => T)) => ([T, Dispatch<T>])
 }
 
-export const currentDispatcher = {
+export const currentDispatcher: {
+  current: Dispatcher | null
+} = {
   current: null
 }
 
