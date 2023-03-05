@@ -22,6 +22,7 @@ export class FiberNode {
   memoizedProps: Props | null
   memoizedState: any
   updateQueue: unknown
+  deletions: FiberNode[] | null
   alternate: FiberNode | null
 
   constructor(tag: WorkTag, pendingProps: Props, key: Key) {
@@ -50,7 +51,8 @@ export class FiberNode {
     this.memoizedProps = null
     this.memoizedState = null
     this.updateQueue = null
-
+    // 存放要删除的子fiber
+    this.deletions = null
     this.alternate = null
   }
 }

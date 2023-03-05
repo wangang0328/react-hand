@@ -14,7 +14,7 @@ export default [
 	{
 		input: `${sourcePkgPath}/${module}`,
 		output: {
-			name: 'index.js',
+			name: 'react',
 			file: `${distPkgPath}/index.js`,
 			format: 'umd',
 		},
@@ -37,12 +37,12 @@ export default [
 		output: [
 			{
 				file: `${distPkgPath}/jsx-runtime.js`,
-				name: 'jsx-runtime.js',
+				name: 'jsx-runtime',
 				format: 'umd',
 			},
 			{
 				file: `${distPkgPath}/jsx-dev-runtime.js`,
-				name: 'jsx-dev-runtime.js',
+				name: 'jsx-dev-runtime',
 				format: 'umd',
 			},
 		],

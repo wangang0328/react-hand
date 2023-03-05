@@ -1,9 +1,12 @@
-import { NoFlags } from './ReactFiberFlags';
+import { NoFlags, Update } from './ReactFiberFlags';
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { HostComponent, HostText, HostRoot, FunctionComponent } from './ReactWorkTags'
 import { FiberNode } from './ReactFiber'
 import { createInstance, appendInitialChild, Container, createTextInstance } from 'hostConfig'
 
+function markUpdate(fiber: FiberNode) {
+  fiber.flags |= Update
+}
 export const completeWork = (wip: FiberNode) => {
   // 对比props 标记update
   // 收集 subtreeFlags
@@ -27,6 +30,11 @@ export const completeWork = (wip: FiberNode) => {
     case HostText:
       if (current !== null && wip.stateNode) {
         // update
+        const oldText = current.memoizedProps.content
+        const newText = newProps.content
+        if (oldText !== newText) {
+          markUpdate(wip)
+        }
       } else {
         // 构建dom
         const instance = createTextInstance(newProps.content)
@@ -66,16 +74,15 @@ function appendAllChild(parentNode: Container, wip: FiberNode) {
       return
     }
 
-    while (curNode!.sibling === null) {
-      curNode = curNode!.return
-      if (curNode === wip || curNode?.return === null) {
+    while (curNode.sibling === null) {
+      if (curNode === wip || curNode.return === null) {
         return
       }
-      curNode = curNode!.return
+      curNode = curNode.return
     }
 
-    curNode!.sibling.return = curNode!.return
-    curNode = curNode!.sibling
+    curNode!.sibling.return = curNode.return
+    curNode = curNode.sibling
   }
 }
 

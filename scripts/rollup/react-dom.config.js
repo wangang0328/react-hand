@@ -16,12 +16,12 @@ export default [
 		input: `${sourcePkgPath}/${module}`,
 		output: [
 			{
-				name: 'index.js',
+				name: 'ReactDom',
 				file: `${distPkgPath}/index.js`,
 				format: 'umd',
 			},
 			{
-				name: 'index.js',
+				name: 'ReactDom',
 				file: `${distPkgPath}/client/index.js`,
 				format: 'umd',
 			},
