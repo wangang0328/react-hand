@@ -1,8 +1,9 @@
-import { NoFlags, Update } from './ReactFiberFlags';
+import { NoFlags, Update } from './ReactFiberFlags'
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { HostComponent, HostText, HostRoot, FunctionComponent } from './ReactWorkTags'
 import { FiberNode } from './ReactFiber'
 import { createInstance, appendInitialChild, Container, createTextInstance } from 'hostConfig'
+import { updateFiberProps, DOMElement } from 'react-dom/src/SyntheticEvent'
 
 function markUpdate(fiber: FiberNode) {
   fiber.flags |= Update
@@ -18,10 +19,13 @@ export const completeWork = (wip: FiberNode) => {
     case HostComponent:
       if (current !== null && wip.stateNode) {
         // update
+        // 对比属性
+        updateFiberProps(wip.stateNode, newProps)
       } else {
         // 构建dom
         const instance = createInstance(wip.type, newProps)
         // 插入到dom树中
+        updateFiberProps(instance as DOMElement, newProps)
         appendAllChild(instance, wip)
         wip.stateNode = instance
       }
