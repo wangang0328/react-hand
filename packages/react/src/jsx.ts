@@ -1,4 +1,4 @@
-import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols'
+import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from 'shared/ReactSymbols'
 import { ElementType, Key, Ref, Props, IReactElement, Type } from 'shared/ReactTypes'
 import hasOwnProperty from 'shared/hasOwnPropety'
 
@@ -6,13 +6,15 @@ const ReactElement = (type: Type, key: Key, ref: Ref, props: Props) => {
   const element: IReactElement = {
     $$typeof: REACT_ELEMENT_TYPE,
     type,
-    key,
+    key: key,
     ref,
     props,
     __auth_owner: 'wa'
   }
   return element
 }
+
+export const Fragment = REACT_FRAGMENT_TYPE
 
 export const jsx = (type: ElementType, config: any, maybeKey: any, ...rest: any[]) => {
   let key: Key | null = null

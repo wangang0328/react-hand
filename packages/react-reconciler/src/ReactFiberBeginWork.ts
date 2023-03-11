@@ -1,6 +1,6 @@
 import { IReactElement } from 'shared/ReactTypes';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { HostRoot, HostComponent, HostText, FunctionComponent } from './ReactWorkTags';
+import { HostRoot, HostComponent, HostText, Fragment, FunctionComponent } from './ReactWorkTags';
 import { FiberNode } from './ReactFiber'
 import { mountChildFibers, reconcileChildFibers } from './childFibers';
 import { renderWithHooks } from './fiberHooks';
@@ -22,6 +22,8 @@ export function beginWork(wip: FiberNode) {
       return updateFunctionComponent(wip)
     case HostComponent:
       return updateHostComponent(wip)
+    case Fragment:
+      return updateFragment(wip)
     case HostText:
       return null
     default:
@@ -59,6 +61,12 @@ function updateHostComponent(wip: FiberNode) {
   // <div><span/></div>, div 生成 span fiber， div的props的children 是span的ReactElement信息
   // div的props 对应着 wip的 pendingProps
   const nextChildren = wip.pendingProps.children
+  reconcilerChildren(wip, nextChildren)
+  return wip.child
+}
+
+function updateFragment(wip: FiberNode) {
+  const nextChildren = wip.pendingProps
   reconcilerChildren(wip, nextChildren)
   return wip.child
 }

@@ -1,6 +1,6 @@
 import { NoFlags, Update } from './ReactFiberFlags'
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { HostComponent, HostText, HostRoot, FunctionComponent } from './ReactWorkTags'
+import { HostComponent, HostText, HostRoot, FunctionComponent, Fragment } from './ReactWorkTags'
 import { FiberNode } from './ReactFiber'
 import { createInstance, appendInitialChild, Container, createTextInstance } from 'hostConfig'
 import { updateFiberProps, DOMElement } from 'react-dom/src/SyntheticEvent'
@@ -47,9 +47,8 @@ export const completeWork = (wip: FiberNode) => {
       bubbleProperties(wip)
       return null
     case HostRoot:
-      bubbleProperties(wip)
-      return null
     case FunctionComponent:
+    case Fragment:
       bubbleProperties(wip)
       return null
     default:
