@@ -6,11 +6,17 @@ const Child = () => <div>child</div>
 const App = () => {
 	const [num, setNum] = useState(3)
 	window.setNum = setNum
-	return (
-		<div onClick={() => setNum(num + 1)}>
-			<span>{num}</span>
-		</div>
-	)
+	const arr =
+		num % 2 !== 0
+			? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
+			: [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>]
+
+	return <ul onClick={() => setNum(num + 1)}>{arr}</ul>
+	// return (
+	// 	<div onClick={() => setNum(num + 1)}>
+	// 		<span>{num}</span>
+	// 	</div>
+	// )
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />)

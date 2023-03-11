@@ -12,7 +12,7 @@ export const createInstance = (type: string, props: any): Instance => {
 
 export const appendInitialChild = (
   parent: Container | Instance,
-  child: Container
+  child: Instance
 ) => {
   parent.appendChild(child)
 }
@@ -22,6 +22,14 @@ export const createTextInstance = (content: string) => {
 }
 
 export const appendChildToContainer = appendInitialChild
+
+export const insertChildToContainer = (
+  parent: Container | Instance,
+  child: Instance,
+  before: Instance
+) => {
+  parent.insertBefore(child, before)
+}
 
 export const commitUpdate = (fiber: FiberNode) => {
   switch (fiber.tag) {

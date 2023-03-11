@@ -58,7 +58,7 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
     console.warn('事件不存target', e)
     return
   }
-  // 1. 收集沿途事件
+  // 1. 收集沿途事件, 从触发源向上收集
   const { capture, bubble } = collectPaths(targetElement, container, eventType)
   // 2. 构造合成事件
   const se = createSyntheticEvent(e)
