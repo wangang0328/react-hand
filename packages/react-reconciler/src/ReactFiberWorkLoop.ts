@@ -1,16 +1,50 @@
+import { Lane, mergeLanes, getHighestPriorityLane, NoLane, SyncLane, markRootFinished } from './fiberLanes';
 import { commitMutationEffects } from './commitWork';
 import { MutationMask, NoFlags } from './ReactFiberFlags';
 import { HostRoot } from './ReactWorkTags';
 import { beginWork } from './ReactFiberBeginWork'
 import { FiberNode, FiberRootNode, createWorkInProgress } from "./ReactFiber"
 import { completeWork } from './ReactFiberCompleteWork'
+import { flushSyncCallbacks, scheduleSyncCallback } from './syncTaskQueue';
+import { scheduleMicroTask } from 'hostConfig';
 
 let workInprogress: FiberNode | null = null
+let workInProgressRenderLane: Lane = NoLane
 
-export function scheduleUpdateOnFiber(fiber: FiberNode) {
+export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
   // 找到根节点
   const root = markUpdateFromFiberToRoot(fiber) as FiberRootNode
-  renderRoot(root)
+  // 收集lane
+  markRootUpdated(root, lane)
+  ensureRootIsScheduled(root)
+}
+
+function ensureRootIsScheduled(root: FiberRootNode) {
+  // 获取最高等级的lane
+  const updateLane = getHighestPriorityLane(root.pendingLanes)
+  if (updateLane === NoLane) {
+    return
+  }
+
+  if (updateLane === SyncLane) {
+    // 同步任务使用 微任务调度
+    if (__DEV__) {
+      console.log('使用微任务调度---')
+    }
+    // 将任务入队
+    scheduleSyncCallback(performSyncWorkOnRoot.bind(null, root, updateLane))
+    // 使用微任务调度 flushSyncCallbacks， 解决批处理 eg： 多次调用setState的问题
+    scheduleMicroTask(flushSyncCallbacks)
+  } else {
+    // 使用宏任务调度
+    if (__DEV__) {
+      console.log('暂未实现的lane')
+    }
+  }
+}
+
+function markRootUpdated(root: FiberRootNode, lane: Lane) {
+  root.pendingLanes = mergeLanes(root.pendingLanes, lane)
 }
 
 function markUpdateFromFiberToRoot(fiber: FiberNode) {
@@ -26,12 +60,13 @@ function markUpdateFromFiberToRoot(fiber: FiberNode) {
   return null
 }
 
-function prepareFreshStack(root: FiberRootNode) {
-  // 在renderRoot 时，会创建一个workInprogress(hostRoot)
+function prepareFreshStack(root: FiberRootNode, lane: Lane) {
+  // performSyncWorkOnRoot 时，会创建一个workInprogress(hostRoot)
   // 也就是说，即使是mount时，hostRoot也是存在current和workinprogress
   // 所在beginwork时 也就一直走的是 reconcileChild而不是mountChild
   // 也就会标记上update， 这也是一种性能优化
   workInprogress = createWorkInProgress(root.current, {})
+  workInProgressRenderLane = lane
 }
 
 // 如何去触发该函数
@@ -39,8 +74,14 @@ function prepareFreshStack(root: FiberRootNode) {
 // 2. setState
 // 3. useState 的 dispatch
 // 使用Update代表更新机制， 消费update的数据结构updatequeue
-function renderRoot(rootFiber: FiberRootNode) {
-  prepareFreshStack(rootFiber)
+function performSyncWorkOnRoot(rootFiber: FiberRootNode, lane: Lane) {
+  const nextLane = getHighestPriorityLane(rootFiber.pendingLanes)
+  if (nextLane !== SyncLane) {
+    // 没有任务，或者是比syncLane更低的任务
+    ensureRootIsScheduled(rootFiber)
+    return
+  }
+  prepareFreshStack(rootFiber, lane)
   do {
     try {
       workloop()
@@ -56,6 +97,8 @@ function renderRoot(rootFiber: FiberRootNode) {
 
   const finishedWork = rootFiber.current.alternate
   rootFiber.finishedWork = finishedWork
+  rootFiber.finishedLane = lane
+  workInProgressRenderLane = NoLane
   commitRoot(rootFiber)
 }
 
@@ -74,7 +117,13 @@ function commitRoot(root: FiberRootNode) {
     // beforeMutation
     // mutation
     commitMutationEffects(finishedWork)
+    const lane = root.finishedLane
+
     root.current = finishedWork
+    root.finishedWork = null
+    root.finishedLane = NoLane
+    markRootFinished(root, lane)
+
     // layout
   } else {
     // do something
@@ -90,7 +139,7 @@ function workloop() {
 }
 
 function performUnitOfWork(fiber: FiberNode) {
-  const next = beginWork(fiber)
+  const next = beginWork(fiber, workInProgressRenderLane)
   fiber.memoizedProps = fiber.pendingProps
   if (next === null) {
     // 无子fiber

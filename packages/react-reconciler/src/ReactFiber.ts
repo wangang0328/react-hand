@@ -1,3 +1,4 @@
+import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
 import { IReactElement, Key, Props, Ref } from 'shared/ReactTypes';
 import { Flags, NoFlags } from './ReactFiberFlags'
 import { WorkTag, FunctionComponent, HostComponent, Fragment } from "./ReactWorkTags"
@@ -63,12 +64,16 @@ export class FiberRootNode {
   container: Container
   // 经过workloop已经完成的fiber树
   finishedWork: null | FiberNode
+  finishedLane: Lane
+  pendingLanes: Lanes
 
   constructor(container: Container, hostRootFiber: FiberNode) {
     this.container = container
     this.current = hostRootFiber
     hostRootFiber.stateNode = this
     this.finishedWork = null
+    this.finishedLane = NoLane
+    this.pendingLanes = NoLanes
   }
 }
 

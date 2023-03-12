@@ -5,12 +5,14 @@ import internals from 'shared/internals'
 import { Action } from 'shared/ReactTypes'
 import { FiberNode } from './ReactFiber'
 import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop';
+import { requestUpdateLane, NoLane, Lane } from './fiberLanes';
 
 // 当前正在处理的functionComponent context
 let currentlyRenderingFiber: FiberNode | null = null
 // 当前正在处理的hook
 let workInProgressHook: Hook | null = null
 let currentHook: Hook | null = null
+let workInProgressUpdateLane: Lane = NoLane
 
 const { currentDispatcher } = internals
 export interface Hook {
@@ -19,11 +21,13 @@ export interface Hook {
   next: Hook | null
 }
 
-export function renderWithHooks(wip: FiberNode) {
+export function renderWithHooks(wip: FiberNode, lane: Lane) {
+
   // 赋值，标记当前所在的context
   currentlyRenderingFiber = wip
   // 重置
   wip.memoizedState = null
+  workInProgressUpdateLane = lane
 
   const current = wip.alternate
   if (current !== null) {
@@ -41,6 +45,7 @@ export function renderWithHooks(wip: FiberNode) {
   currentlyRenderingFiber = null
   workInProgressHook = null
   currentHook = null
+  workInProgressUpdateLane = NoLane
   return children
 }
 
@@ -58,7 +63,7 @@ function updateState<State>() {
   const queue = hook.updateQueue as UpdateQueue<State>
   const pending = queue.shared.pending
   if (pending !== null) {
-    const { memoizedState } = processUpdateQueue(hook.memoizeState, pending)
+    const { memoizedState } = processUpdateQueue(hook.memoizeState, pending, workInProgressUpdateLane)
     hook.memoizeState = memoizedState
   }
   return [hook.memoizeState, queue.dispatch] as [State, Dispatch<State>]
@@ -131,12 +136,13 @@ function dispatchSetState<State>(
   updateQueue: UpdateQueue<State>,
   action: Action<State>
 ) {
+  const lane = requestUpdateLane()
   // setState 触发
-  const update = createUpdate(action)
+  const update = createUpdate(action, lane)
   enqueueUpdate(updateQueue, update)
 
   // 触发更新
-  scheduleUpdateOnFiber(fiber)
+  scheduleUpdateOnFiber(fiber, lane)
 }
 
 function mountWorkInProgressHook() {

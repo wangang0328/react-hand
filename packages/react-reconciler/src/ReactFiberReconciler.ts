@@ -4,6 +4,7 @@ import { HostRoot } from './ReactWorkTags'
 import { scheduleUpdateOnFiber } from './ReactFiberWorkLoop'
 import { FiberNode, FiberRootNode } from './ReactFiber'
 import { createUpdateQueue, createUpdate, enqueueUpdate, UpdateQueue } from './updateQueue'
+import { requestUpdateLane } from './fiberLanes';
 // ReactDom.createRoot(element).render(<App />)
 
 // fiberRootNode ==current==> hostRootFiber ==child==> App
@@ -26,13 +27,14 @@ export const updateContainer = (
   root: FiberRootNode
 ) => {
   const hostRootFiber = root.current
+  const lane = requestUpdateLane()
   // App 的ReactElement
-  const update = createUpdate<IReactElement | null>(element)
+  const update = createUpdate<IReactElement | null>(element, lane)
   enqueueUpdate(
     hostRootFiber.updateQueue as UpdateQueue<IReactElement | null>,
     update
   )
   // 调度 schedule
-  scheduleUpdateOnFiber(hostRootFiber)
+  scheduleUpdateOnFiber(hostRootFiber, lane)
   return element
 }

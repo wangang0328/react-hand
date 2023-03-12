@@ -1,3 +1,4 @@
+import { Lane } from './fiberLanes';
 import { IReactElement } from 'shared/ReactTypes';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
 import { HostRoot, HostComponent, HostText, Fragment, FunctionComponent } from './ReactWorkTags';
@@ -13,13 +14,13 @@ import { renderWithHooks } from './fiberHooks';
  * 删除： ul>li*3 -> ul>li*1
  * 不包含与属性变化相关的flags
  */
-export function beginWork(wip: FiberNode) {
+export function beginWork(wip: FiberNode, lane: Lane) {
   // 根据不同的类型做不同的处理
   switch (wip.tag) {
     case HostRoot:
-      return updateHostRoot(wip)
+      return updateHostRoot(wip, lane)
     case FunctionComponent:
-      return updateFunctionComponent(wip)
+      return updateFunctionComponent(wip, lane)
     case HostComponent:
       return updateHostComponent(wip)
     case Fragment:
@@ -35,20 +36,20 @@ export function beginWork(wip: FiberNode) {
   return null
 }
 
-function updateFunctionComponent(wip: FiberNode) {
-  const nextChildren = renderWithHooks(wip)
+function updateFunctionComponent(wip: FiberNode, lane: Lane) {
+  const nextChildren = renderWithHooks(wip, lane)
   reconcilerChildren(wip, nextChildren)
   return wip.child
 }
 
-function updateHostRoot(wip: FiberNode) {
+function updateHostRoot(wip: FiberNode, lane: Lane) {
   // 计算state
   const baseState = wip.memoizedState
   const updateQueue = wip.updateQueue as UpdateQueue<Element>
   const pending = updateQueue.shared.pending
   // 已经计算完毕，重置pending
   updateQueue.shared.pending = null
-  const { memoizedState } = processUpdateQueue(baseState, pending)
+  const { memoizedState } = processUpdateQueue(baseState, pending, lane)
   const nextChildren = wip.memoizedState = memoizedState
 
   // 创造子fiberNode

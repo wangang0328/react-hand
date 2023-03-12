@@ -54,3 +54,11 @@ export const removeChild = (
 function commmitTextUpdate(textInstance: TextInstance, text: string) {
   textInstance.textContent = text
 }
+
+
+export const scheduleMicroTask =
+  typeof queueMicrotask === 'function'
+    ? queueMicrotask
+    : typeof Promise === 'function'
+      ? (cb: (...args: any) => void) => Promise.resolve(null).then(cb)
+      : setTimeout
