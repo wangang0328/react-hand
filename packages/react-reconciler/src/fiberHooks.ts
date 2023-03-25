@@ -1,3 +1,5 @@
+import { Passive, HookHasEffect } from './hookEffectTags';
+import { Flags, PassiveEffect } from './ReactFiberFlags';
 import { Dispatch } from 'react/src/currentDispatcher';
 import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue, processUpdateQueue } from './updateQueue';
 import { Dispatcher } from 'react/src/currentDispatcher'
@@ -21,12 +23,28 @@ export interface Hook {
   next: Hook | null
 }
 
-export function renderWithHooks(wip: FiberNode, lane: Lane) {
+export interface Effect {
+  tag: Flags
+  create: EffectCallback | void
+  destory: EffectCallback | void
+  deps: EffectDeps
+  next: Effect | null
+}
 
+export interface FnUpdateQueue<State> extends UpdateQueue<State> {
+  lastEffect: null | Effect
+}
+
+type EffectCallback = () => void
+type EffectDeps = any[] | null
+
+export function renderWithHooks(wip: FiberNode, lane: Lane) {
   // 赋值，标记当前所在的context
   currentlyRenderingFiber = wip
-  // 重置
+  // 重置hooks链表
   wip.memoizedState = null
+  // 重置 effect 链表
+  wip.updateQueue = null
   workInProgressUpdateLane = lane
 
   const current = wip.alternate
@@ -50,11 +68,100 @@ export function renderWithHooks(wip: FiberNode, lane: Lane) {
 }
 
 const HooksDispatcherOnMount: Dispatcher = {
-  useState: mountState
+  useState: mountState,
+  useEffect: mountEffect
 }
 
 const HooksDispatcherOnUpdate: Dispatcher = {
-  useState: updateState
+  useState: updateState,
+  useEffect: updateEffect
+}
+
+function updateEffect(create: EffectCallback | void, deps: EffectDeps | void) {
+  // 获取当前对应的hook
+  const effectHook = updateWorkInProgressHook()
+  const nextDeps = deps === undefined ? null : deps
+
+  if (effectHook !== null) {
+    const prevEffect = effectHook.memoizeState as Effect
+    const prevDeps = prevEffect.deps
+    const destory = prevEffect.destory
+    if (areHookInputsEqual(prevDeps, nextDeps)) {
+      // 依赖相等
+      effectHook.memoizeState = pushEffect(Passive, create, destory, nextDeps)
+    } else {
+      effectHook.memoizeState = pushEffect(Passive | HookHasEffect, create, destory, nextDeps)
+      // 标记该fiber有hooks副作用
+      currentlyRenderingFiber!.flags |= PassiveEffect
+    }
+  }
+}
+
+function areHookInputsEqual(prevDeps: EffectDeps, nextDeps: EffectDeps) {
+  if (prevDeps === null || nextDeps === null) {
+    return false
+  }
+  if (prevDeps.length !== nextDeps.length) {
+    return false
+  }
+  for (let i = 0; i < prevDeps.length; i++) {
+    if (Object.is(prevDeps[i], nextDeps[i])) {
+      continue
+    }
+    return false
+  }
+  return true
+}
+
+function mountEffect(create: EffectCallback | void, deps: EffectDeps | void) {
+  const hook = mountWorkInProgressHook()
+  const nextDeps = deps === undefined ? null : deps;
+  // 标记fiber
+  (currentlyRenderingFiber as FiberNode).flags |= PassiveEffect
+  // 处理Effect入队
+  hook.memoizeState = pushEffect(Passive | HookHasEffect, create, undefined, nextDeps)
+}
+
+function createEffectUpdateQueue<State>() {
+  const updateQueue = createUpdateQueue<State>() as FnUpdateQueue<State>
+  updateQueue.lastEffect = null
+  return updateQueue
+}
+
+function pushEffect(
+  hookFlags: Flags,
+  create: EffectCallback | void,
+  destory: EffectCallback | void,
+  deps: EffectDeps
+) {
+  // 将effect挂到fiber的updateQueue上
+  const effect: Effect = {
+    tag: hookFlags,
+    create,
+    destory,
+    deps,
+    next: null
+  }
+  const fiber = currentlyRenderingFiber as FiberNode
+  let updateQueue = fiber.updateQueue as FnUpdateQueue<any>
+  if (updateQueue === null) {
+    updateQueue = createEffectUpdateQueue()
+    fiber.updateQueue = updateQueue
+    effect.next = effect
+    updateQueue.lastEffect = effect
+  } else {
+    if (updateQueue.lastEffect === null) {
+      effect.next = effect
+      updateQueue.lastEffect = effect
+    } else {
+      const firstEffect = updateQueue.lastEffect.next
+      updateQueue.lastEffect.next = effect
+      effect.next = firstEffect
+      updateQueue.lastEffect = effect
+    }
+  }
+
+  return effect
 }
 
 function updateState<State>() {
@@ -62,6 +169,7 @@ function updateState<State>() {
   const hook = updateWorkInProgressHook()
   const queue = hook.updateQueue as UpdateQueue<State>
   const pending = queue.shared.pending
+  queue.shared.pending = null
   if (pending !== null) {
     const { memoizedState } = processUpdateQueue(hook.memoizeState, pending, workInProgressUpdateLane)
     hook.memoizeState = memoizedState

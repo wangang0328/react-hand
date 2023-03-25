@@ -1,3 +1,4 @@
+import { Effect } from './fiberHooks';
 import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
 import { IReactElement, Key, Props, Ref } from 'shared/ReactTypes';
 import { Flags, NoFlags } from './ReactFiberFlags'
@@ -58,6 +59,10 @@ export class FiberNode {
   }
 }
 
+export interface PendingPassiveEffects {
+  unmount: Effect[],
+  update: Effect[]
+}
 export class FiberRootNode {
   current: FiberNode
   // ReactDom.createRoot(ele)的dom参数
@@ -66,6 +71,7 @@ export class FiberRootNode {
   finishedWork: null | FiberNode
   finishedLane: Lane
   pendingLanes: Lanes
+  pendingPassiveEffects: PendingPassiveEffects
 
   constructor(container: Container, hostRootFiber: FiberNode) {
     this.container = container
@@ -74,6 +80,10 @@ export class FiberRootNode {
     this.finishedWork = null
     this.finishedLane = NoLane
     this.pendingLanes = NoLanes
+    this.pendingPassiveEffects = {
+      unmount: [],
+      update: []
+    }
   }
 }
 

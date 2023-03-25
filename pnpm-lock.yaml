@@ -69,8 +69,10 @@ importers:
 
   packages/react-reconciler:
     specifiers:
+      scheduler: ^0.23.0
       shared: workspace:*
     dependencies:
+      scheduler: registry.npmmirror.com/scheduler/0.23.0
       shared: link:../shared
 
   packages/shared:
@@ -2726,6 +2728,15 @@ packages:
     version: 4.17.21
     dev: true
 
+  registry.npmmirror.com/loose-envify/1.4.0:
+    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/loose-envify/-/loose-envify-1.4.0.tgz}
+    name: loose-envify
+    version: 1.4.0
+    hasBin: true
+    dependencies:
+      js-tokens: registry.npmmirror.com/js-tokens/4.0.0
+    dev: false
+
   registry.npmmirror.com/lru-cache/5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lru-cache/-/lru-cache-5.1.1.tgz}
     name: lru-cache
@@ -3344,6 +3355,14 @@ packages:
     name: safe-buffer
     version: 5.2.1
     dev: true
+
+  registry.npmmirror.com/scheduler/0.23.0:
+    resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/scheduler/-/scheduler-0.23.0.tgz}
+    name: scheduler
+    version: 0.23.0
+    dependencies:
+      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
+    dev: false
 
   registry.npmmirror.com/semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/semver/-/semver-5.7.1.tgz}

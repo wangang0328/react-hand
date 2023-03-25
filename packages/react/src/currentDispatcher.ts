@@ -4,6 +4,7 @@ export type Dispatch<State> = (v: Action<State>) => void
 
 export interface Dispatcher {
   useState: <T>(v: T | (() => T)) => ([T, Dispatch<T>])
+  useEffect: (callback: () => void | void, deps: any[] | void) => void
 }
 
 export const currentDispatcher: {

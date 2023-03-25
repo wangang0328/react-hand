@@ -9,6 +9,11 @@ export const useState: Dispatcher['useState'] = (initialState) => {
   return dispatcher.useState(initialState)
 }
 
+export const useEffect = (callback: () => void | void, deps: any[] | void) => {
+  const dispatcher = resolveDispatcher()
+  return dispatcher.useEffect(callback, deps)
+}
+
 // 内部数据共享层，其实就是将hook的实现通过该指针进行赋值
 export const __SECRET_INTERANLS_DO_NOT_USE_OR_YOU_WILL_FIRED = {
   currentDispatcher
