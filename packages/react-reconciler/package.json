@@ -4,7 +4,6 @@
   "description": "react 协调器",
   "module": "index.ts",
   "dependencies": {
-    "scheduler": "^0.23.0",
     "shared": "workspace:*"
   },
   "scripts": {},

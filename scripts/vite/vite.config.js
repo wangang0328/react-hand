@@ -25,6 +25,10 @@ export default defineConfig({
 				replacement: resolveSourcePkgPath('react-dom'),
 			},
 			{
+				find: 'scheduler',
+				replacement: resolveSourcePkgPath('scheduler'),
+			},
+			{
 				find: 'hostConfig',
 				replacement: path.resolve(
 					resolveSourcePkgPath('react-dom'),

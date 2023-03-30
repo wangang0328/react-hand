@@ -25,10 +25,12 @@ importers:
       rollup: ^3.14.0
       rollup-plugin-generate-package-json: ^3.2.0
       rollup-plugin-typescript2: ^0.34.1
+      scheduler: ^0.23.0
       typescript: ^4.9.5
       vite: ^4.1.0
     dependencies:
       rollup-plugin-generate-package-json: registry.npmmirror.com/rollup-plugin-generate-package-json/3.2.0_rollup@3.14.0
+      scheduler: registry.npmmirror.com/scheduler/0.23.0
     devDependencies:
       '@commitlint/cli': registry.npmmirror.com/@commitlint/cli/17.4.2
       '@commitlint/config-conventional': registry.npmmirror.com/@commitlint/config-conventional/17.4.2
@@ -69,10 +71,8 @@ importers:
 
   packages/react-reconciler:
     specifiers:
-      scheduler: ^0.23.0
       shared: workspace:*
     dependencies:
-      scheduler: registry.npmmirror.com/scheduler/0.23.0
       shared: link:../shared
 
   packages/shared:
