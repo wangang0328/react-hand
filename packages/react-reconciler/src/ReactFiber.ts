@@ -1,6 +1,7 @@
-import { Effect } from './fiberHooks';
-import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes';
-import { IReactElement, Key, Props, Ref } from 'shared/ReactTypes';
+import { CallbackNode } from 'scheduler'
+import { Effect } from './fiberHooks'
+import { Lane, Lanes, NoLane, NoLanes } from './fiberLanes'
+import { IReactElement, Key, Props, Ref } from 'shared/ReactTypes'
 import { Flags, NoFlags } from './ReactFiberFlags'
 import { WorkTag, FunctionComponent, HostComponent, Fragment } from "./ReactWorkTags"
 import { Container } from 'hostConfig'
@@ -72,6 +73,8 @@ export class FiberRootNode {
   finishedLane: Lane
   pendingLanes: Lanes
   pendingPassiveEffects: PendingPassiveEffects
+  callbackNode: CallbackNode | null
+  callbackPriority: Lane
 
   constructor(container: Container, hostRootFiber: FiberNode) {
     this.container = container
@@ -84,6 +87,8 @@ export class FiberRootNode {
       unmount: [],
       update: []
     }
+    this.callbackNode = null
+    this.callbackPriority = NoLane
   }
 }
 
