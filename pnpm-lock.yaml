@@ -25,12 +25,10 @@ importers:
       rollup: ^3.14.0
       rollup-plugin-generate-package-json: ^3.2.0
       rollup-plugin-typescript2: ^0.34.1
-      scheduler: ^0.23.0
       typescript: ^4.9.5
       vite: ^4.1.0
     dependencies:
       rollup-plugin-generate-package-json: registry.npmmirror.com/rollup-plugin-generate-package-json/3.2.0_rollup@3.14.0
-      scheduler: registry.npmmirror.com/scheduler/0.23.0
     devDependencies:
       '@commitlint/cli': registry.npmmirror.com/@commitlint/cli/17.4.2
       '@commitlint/config-conventional': registry.npmmirror.com/@commitlint/config-conventional/17.4.2
@@ -64,16 +62,23 @@ importers:
   packages/react-dom:
     specifiers:
       react-reconciler: 'workspace: *'
+      scheduler: 'workspace: *'
       shared: 'workspace: *'
     dependencies:
       react-reconciler: link:../react-reconciler
+      scheduler: link:../scheduler
       shared: link:../shared
 
   packages/react-reconciler:
     specifiers:
+      scheduler: workspace:*
       shared: workspace:*
     dependencies:
+      scheduler: link:../scheduler
       shared: link:../shared
+
+  packages/scheduler:
+    specifiers: {}
 
   packages/shared:
     specifiers: {}
@@ -2728,15 +2733,6 @@ packages:
     version: 4.17.21
     dev: true
 
-  registry.npmmirror.com/loose-envify/1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/loose-envify/-/loose-envify-1.4.0.tgz}
-    name: loose-envify
-    version: 1.4.0
-    hasBin: true
-    dependencies:
-      js-tokens: registry.npmmirror.com/js-tokens/4.0.0
-    dev: false
-
   registry.npmmirror.com/lru-cache/5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/lru-cache/-/lru-cache-5.1.1.tgz}
     name: lru-cache
@@ -3355,14 +3351,6 @@ packages:
     name: safe-buffer
     version: 5.2.1
     dev: true
-
-  registry.npmmirror.com/scheduler/0.23.0:
-    resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/scheduler/-/scheduler-0.23.0.tgz}
-    name: scheduler
-    version: 0.23.0
-    dependencies:
-      loose-envify: registry.npmmirror.com/loose-envify/1.4.0
-    dev: false
 
   registry.npmmirror.com/semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/semver/-/semver-5.7.1.tgz}

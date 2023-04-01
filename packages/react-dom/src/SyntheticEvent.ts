@@ -1,4 +1,5 @@
 import { Container } from 'hostConfig';
+import { ImmediatePriority, runWithPriority, UserBlockingPriority, NormalPriority } from 'scheduler';
 import { Props } from 'shared/ReactTypes'
 
 export const elementPropsKey = '__props'
@@ -73,7 +74,11 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
 function triggerEventFlow(paths: EventCallback[], se: SyntheticEvent) {
   for (let i = 0; i < paths.length; i++) {
     const callback = paths[i];
-    callback.call(null, se)
+    // 使用runWithPriority的原因是，保存当前调度的上下文环境，后面在别的地方可以用到
+    // getCurrentPriorityLevel
+    runWithPriority(eventTypeToSchedulerPriority(se.type), () => {
+      callback.call(null, se)
+    })
     if (se.__stopPropagation) {
       break
     }
@@ -115,4 +120,17 @@ function getEventCallbackNameFromTypeName(eventType: string) {
   return {
     click: ['onClickCapture', 'onClick']
   }[eventType]
+}
+
+function eventTypeToSchedulerPriority(eventType: string) {
+  switch (eventType) {
+    case 'click':
+    case 'keydown':
+    case 'keyup':
+      return ImmediatePriority
+    case 'scroll':
+      return UserBlockingPriority
+    default:
+      return NormalPriority
+  }
 }

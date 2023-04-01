@@ -36,7 +36,6 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
-    "rollup-plugin-generate-package-json": "^3.2.0",
-    "scheduler": "^0.23.0"
+    "rollup-plugin-generate-package-json": "^3.2.0"
   }
 }
