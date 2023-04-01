@@ -56,7 +56,7 @@ let isHostTimeoutScheduled = false
 
 // 开始的时间，用于标识是否超过规定每帧执行的时长
 let startTime = -1
-let currentPriorityLevel = IdlePriority
+let currentPriorityLevel = NormalPriority
 // TODO:
 let isMessageLoopRuning = false
 let currentTask: Task | null = null
@@ -319,3 +319,30 @@ export const cancelCallback = (task: Task) => {
 export const getFirstCallbackNode = () => {
   return taskQueue.peek()
 }
+
+export const runWithPriority = <T>(
+  priorityLevel: PriorityLevel,
+  callback: () => T
+) => {
+  switch (priorityLevel) {
+    case ImmediatePriority:
+    case UserBlockingPriority:
+    case NormalPriority:
+    case LowPriority:
+    case IdlePriority:
+      break
+    default:
+      // 给的level值不合法，默认NormalPriority
+      priorityLevel = NormalPriority
+  }
+  const previousPriorityLevel = currentPriorityLevel
+  currentPriorityLevel = priorityLevel
+  try {
+    return callback()
+  } finally {
+    currentPriorityLevel = previousPriorityLevel
+  }
+}
+
+// 获取当前上下文环境的 priorityLevel
+export const getCurrentPriorityLevel = () => currentPriorityLevel as PriorityLevel
