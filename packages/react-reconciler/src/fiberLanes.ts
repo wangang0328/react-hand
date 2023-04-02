@@ -1,5 +1,4 @@
-import { ImmediatePriority, UserBlockingPriority, NormalPriority, IdlePriority, PriorityLevel } from './../../scheduler/src/Prioirties';
-import { getCurrentPriorityLevel } from 'scheduler'
+import { getCurrentPriorityLevel, ImmediatePriority, UserBlockingPriority, NormalPriority, IdlePriority, PriorityLevel } from 'scheduler'
 import { FiberRootNode } from "./ReactFiber"
 
 export type Lane = number
@@ -21,7 +20,6 @@ export const getHighestPriorityLane = (lanes: Lanes): Lane => (lanes & -lanes)
 
 
 export const requestUpdateLane = () => {
-  // TODO: 后续后根据不同的触发，返回不同的优先级
   // 从上下文环境中获取shceduler优先级
   const currentPriorityLevel = getCurrentPriorityLevel()
   const lane = schedulerPriorityToLane(currentPriorityLevel)
@@ -30,6 +28,10 @@ export const requestUpdateLane = () => {
 
 export const markRootFinished = (root: FiberRootNode, lane: Lane) => {
   root.pendingLanes &= ~lane
+}
+
+export const isSubsetOfLanes = (subSet: Lane, set: Lanes) => {
+  return (subSet & set) === subSet
 }
 
 export const lanesToSchedulerPriority = (lanes: Lanes) => {
@@ -58,8 +60,8 @@ export const schedulerPriorityToLane = (schedulerPriority: PriorityLevel) => {
   if (schedulerPriority === UserBlockingPriority) {
     return InputContinuousLane
   }
-  if (schedulerPriority === DefaultLane) {
-    return NormalPriority
+  if (schedulerPriority === NormalPriority) {
+    return DefaultLane
   }
 
   return NoLane

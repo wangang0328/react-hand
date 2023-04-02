@@ -1,7 +1,7 @@
 import { Passive, HookHasEffect } from './hookEffectTags';
 import { Flags, PassiveEffect } from './ReactFiberFlags';
 import { Dispatch } from 'react/src/currentDispatcher';
-import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue, processUpdateQueue } from './updateQueue';
+import { createUpdate, createUpdateQueue, enqueueUpdate, UpdateQueue, processUpdateQueue, Update } from './updateQueue';
 import { Dispatcher } from 'react/src/currentDispatcher'
 import internals from 'shared/internals'
 import { Action } from 'shared/ReactTypes'
@@ -21,8 +21,10 @@ export interface Hook {
   memoizeState: any
   updateQueue: unknown
   next: Hook | null
+  // 保存的对应的wip的hook的baseQueue
+  baseQueue: Update<any> | null
+  baseState: any
 }
-
 export interface Effect {
   tag: Flags
   create: EffectCallback | void
@@ -168,11 +170,38 @@ function updateState<State>() {
   // 找到当前 useState 对应的hook
   const hook = updateWorkInProgressHook()
   const queue = hook.updateQueue as UpdateQueue<State>
+  const baseState = hook.baseState
+  const current = currentHook as Hook
+  let baseQueue = current.baseQueue
   const pending = queue.shared.pending
-  queue.shared.pending = null
+  if (__DEV__) {
+    console.warn('baseState应该是从current里取')
+  }
+  // 每次计算完updateQueue后不能直接赋值为null， 因为有高优先级任务打断低优先级，可能会进行多次render， 导致updateQueue还没有计算完，就被置空了
+  // 那么可以考虑把update保存到current中， 只要不进入commit阶段，wip和current就不会互换， 所以保存在current中，即使多次执行render阶段
+  // 只要不进入commit阶段，都能从current中恢复数据
+  // queue.shared.pending = null
   if (pending !== null) {
-    const { memoizedState } = processUpdateQueue(hook.memoizeState, pending, workInProgressUpdateLane)
-    hook.memoizeState = memoizedState
+    // 1. update (pending, baseQueue) 保存在current中
+    if (baseQueue !== null) {
+      const baseQueueFirst = baseQueue.next
+      const pendingQueueFirst = pending.next
+
+      baseQueue.next = pendingQueueFirst
+      pending.next = baseQueueFirst
+    }
+    baseQueue = pending
+    // 保存在current中
+    current.baseQueue = pending
+    queue.shared.pending = null
+    if (baseQueue !== null) {
+      const { memoizedState, baseState: newBaseState, baseQueue: newBaseQueue } = processUpdateQueue(baseState, baseQueue, workInProgressUpdateLane)
+      // 如果该更新走到commit阶段，那么该hook就是currentHook
+      // 如果该更新没有走到commit阶段，那么下次计算时继续从currentHook中取updateQueue
+      hook.memoizeState = memoizedState
+      hook.baseQueue = newBaseQueue
+      hook.baseState = newBaseState
+    }
   }
   return [hook.memoizeState, queue.dispatch] as [State, Dispatch<State>]
 }
@@ -198,7 +227,9 @@ function updateWorkInProgressHook() {
   const newHook: Hook = {
     memoizeState: currentHook.memoizeState,
     updateQueue: currentHook.updateQueue,
-    next: null
+    next: null,
+    baseQueue: currentHook.baseQueue,
+    baseState: currentHook.baseState
   }
 
   if (workInProgressHook === null) {
@@ -257,7 +288,9 @@ function mountWorkInProgressHook() {
   const hook: Hook = {
     memoizeState: null,
     updateQueue: null,
-    next: null
+    next: null,
+    baseQueue: null,
+    baseState: null
   }
   if (workInProgressHook === null) {
     if (currentlyRenderingFiber === null) {

@@ -1,51 +1,34 @@
 // @ts-nocheck
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 
 // const Child = () => <div>child</div>
 
-const Child = () => {
-	useEffect(() => {
-		console.log('child mount')
-		return () => console.log('child UnMount')
-	}, [])
-	return <div>child</div>
+const doSomethingDelay = (time: number) => {
+	const currentTime = performance.now()
+	while (performance.now() - currentTime < time) {
+		// do nothing
+	}
+}
+
+const Child = ({ children }) => {
+	doSomethingDelay(4)
+	console.log('children-', children)
+	return <li>{children}</li>
 }
 const App = () => {
-	const [num, setNum] = useState(0)
-	window.setNum = setNum
-	useEffect(() => {
-		console.log('app mount')
-		return () => console.log('app unmount')
-	}, [])
+	const [num, setNum] = useState(1500)
 
-	useEffect(() => {
-		console.log('app update')
-		return () => console.log('app destory')
-	}, [num])
-	// const arr =
-	// 	num % 2 !== 0
-	// 		? [<li key="1">1</li>, <li key="2">2</li>, <li key="3">3</li>]
-	// 		: [<li key="3">3</li>, <li key="2">2</li>, <li key="1">1</li>]
-
-	// return (
-	// 	<ul onClick={() => setNum(num + 1)}>
-	// 		<li key="4">4</li>
-	// 		<li key="5">5</li>
-	// 		{arr}
-	// 	</ul>
-	// )
 	return (
-		<div
+		<ul
 			onClick={() => {
-				setNum((num) => num + 1)
-				// setNum((num) => num + 1)
-				// setNum((num) => num + 1)
+				setNum(50)
 			}}
 		>
-			<span>{num}</span>
-			{num === 0 ? <Child /> : 'null'}
-		</div>
+			{new Array(num).fill(0).map((_, index) => (
+				<Child key={index}>{index}</Child>
+			))}
+		</ul>
 	)
 }
 
